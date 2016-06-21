@@ -4,6 +4,8 @@ const fs = require('fs');
 const os = require('os');
 const spawnSync = require('child_process').spawnSync;
 
+const tmpFolder = '/tmp/mmsync';
+
 const deleteFolderRecursive = path => {
   if (fs.existsSync(path)) {
     fs.readdirSync(path).forEach((file, index) => {
@@ -19,10 +21,14 @@ const deleteFolderRecursive = path => {
   }
 };
 
+const cleanup = () => {
+  deleteFolderRecursive(tmpFolder);
+};
+
 export function run(settingsFile, opts) {
   const command = opts.rawArgs[1].split('/').pop();
   const mUrlPattern = /"MONGO_URL":\s*"mongodb:\/\/(\S+?):(\S+?)@(\S+?):(\d+)\/(\S+?)[",]/;
-  let filestr, result
+  let filestr, result;
 
   try {
     filestr = fs.readFileSync(settingsFile, { encoding: 'utf-8' });
@@ -51,7 +57,7 @@ export function run(settingsFile, opts) {
     '--username', username,
     '--password', password,
     '--db', dbName,
-    '-o', '/tmp/msync',
+    '-o', tmpFolder,
   ];
 
   process.stdout.write(
@@ -72,6 +78,7 @@ export function run(settingsFile, opts) {
         process.stderr.write('Try installing mongodb via Homebrew\n');
       }
     } else {
+      cleanup();
       console.error(result.stderr);
     }
     process.exit(result.status);
@@ -86,18 +93,18 @@ export function run(settingsFile, opts) {
     importOptions.push('--drop');
   }
 
-  importOptions.push(`/tmp/msync/${dbName}`);
+  importOptions.push(`${tmpFolder}/${dbName}`);
 
   process.stdout.write('OK!\nImporting into local Meteor DB...');
   result = spawnSync('mongorestore', importOptions, { encoding: 'utf-8' });
 
   if (result.status !== 0) {
     process.stderr.write('error!\n\n');
+    cleanup();
     console.error(result.stderr);
     process.exit(result.status);
   }
 
   process.stdout.write('OK!\n\nDone!\n');
-
-  deleteFolderRecursive('/tmp/msync');
+  cleanup();
 }
