@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+/*eslint-disable*/
+var program = require('commander');
+var updateNotifier = require('update-notifier');
+var mmsync = require('../lib/mmsync');
+var pkg = require('../package.json');
+
+// Check for new version and print notification
+updateNotifier({ pkg: pkg }).notify({ defer: false });
+
+let settingsFilename = '';
+
+program
+  .version(pkg.version)
+  .description('One-way sync from remote MongoDB to local Meteor/Mongo server.')
+  .usage('[options] <settings JSON file>')
+  .arguments('<settingsFile>')
+  .option('-d, --drop', 'delete all local data before syncing')
+  .action(function (settingsFile) {
+    settingsFilename = settingsFile;
+  });
+
+program.parse(process.argv);
+
+if (!settingsFilename) {
+  program.help();
+}
+
+mmsync.run(settingsFilename, program);
