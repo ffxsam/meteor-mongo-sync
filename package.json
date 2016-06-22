@@ -1,6 +1,6 @@
 {
   "name": "meteor-mongo-sync",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "A command line tool to do one-way MongoDB syncs to a local Meteor dev environment",
   "main": "lib/mmsync",
   "bin": {

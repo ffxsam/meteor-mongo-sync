@@ -8,7 +8,7 @@ var pkg = require('../package.json');
 // Check for new version and print notification
 updateNotifier({ pkg: pkg }).notify({ defer: false });
 
-let settingsFilename = '';
+var settingsFilename = '';
 
 program
   .version(pkg.version)
