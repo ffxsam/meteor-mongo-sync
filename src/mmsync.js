@@ -69,7 +69,7 @@ export function run(settingsFile, opts) {
     // Error
     process.stderr.write('error!\n\n');
 
-    if (result.error.code === 'ENOENT') {
+    if (result.error && result.error.code === 'ENOENT') {
       process.stderr.write(
         'Are you sure you have the mongodb client tools installed?\n'
       );
